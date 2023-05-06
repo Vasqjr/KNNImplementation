@@ -2,13 +2,13 @@
 
 #Import All Of The Required Packages For KNN Implementation Into The Program
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
+
 
 #Loads The Iris Dataset Which Returns A Bunch Object Containing The Dataset's Attributes. Then Creates a Pandas DataFrame from the initial data.
 iris = load_iris()
@@ -20,7 +20,7 @@ df['target'] = iris.target
 #Random_state parameter set to 42 ensures reproducibility of the results.
 X = df.iloc[:, :-1].values
 y = df.iloc[:, -1].values
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 
 #Normalizes the feature values using scikit-learn's StandardScaler class.
 #First creates an instance of the class, then uses fit_transform to fit the scaler on the training set.
@@ -30,7 +30,7 @@ X_test = scaler.transform(X_test)
 
 #Creates an instance of the KNeighborsClassifier class with k = 3 neighbors.
 #Fits the model on the normalized training data.
-k = 23
+k = 5
 knn = KNeighborsClassifier(n_neighbors=k)
 knn.fit(X_train, y_train)
 
@@ -42,16 +42,19 @@ print(f"Accuracy: {accuracy}")
 
 #Finally, uses Matplotlib.pyplot to visualize the data as scatter plots.
 #Creates a figure with four subplots(nrows = 2, ncols = 2), sets their size to 10 * 10, flatten the axes array so we can iterate over it easily.
-fig, axs = plt.subplots(nrows = 2, ncols = 2, figsize = (10, 10))
+fig, axs = plt.subplots(nrows=2, ncols=4, figsize=(20, 20))
 axs = axs.flatten()
 
-#Loop over the number of features to fill the scatter plot. Sets X axis to the "ith" feature name, Sets Y axis to "Target"
+plot_num = 0
 for i in range(df.shape[1]-1):
-    axs[i].scatter(df.iloc[:, i], df.iloc[:, -1])
-    axs[i].set_xlabel(iris.feature_names[i])
-    axs[i].set_ylabel('Target')
+    for j in range(i+1, df.shape[1]-1):
+        if (df.iloc[:, i].nunique() > 1) and (df.iloc[:, j].nunique() > 1):
+            axs[plot_num].scatter(df.iloc[:, i], df.iloc[:, j], c=df['target'], cmap='viridis')
+            axs[plot_num].set_xlabel(iris.feature_names[i])
+            axs[plot_num].set_ylabel(iris.feature_names[j])
+            axs[plot_num].set_title(f"{iris.feature_names[i]} vs. {iris.feature_names[j]}")
+            plot_num += 1
 
-#Outputs The Plot
 plt.show()
 
 
